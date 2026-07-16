@@ -1,0 +1,192 @@
+.onsen-root {
+  font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
+  background: #edf1f0;
+  min-height: 100vh;
+  color: #1e3231;
+}
+.onsen-root * {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.o-header {
+  background: #fbfcfb;
+  border-bottom: 3px double #35577d;
+  padding: 20px 24px 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.o-seal {
+  width: 52px;
+  height: 52px;
+  border: 2.5px solid #c4442e;
+  border-radius: 50%;
+  color: #c4442e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 26px;
+  font-weight: 700;
+  transform: rotate(-6deg);
+  flex-shrink: 0;
+}
+.o-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  margin: 0;
+}
+.o-sub {
+  font-size: 12px;
+  color: #5a6b69;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+.o-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  background: #fbfcfb;
+  border-bottom: 1px solid #c9d3d1;
+  flex-wrap: wrap;
+}
+.o-tab {
+  border: 1px solid #c9d3d1;
+  border-bottom: none;
+  background: #edf1f0;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  color: #5a6b69;
+  font-family: inherit;
+}
+.o-tab.active {
+  background: #35577d;
+  color: #fbfcfb;
+  border-color: #35577d;
+}
+.o-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+.o-card {
+  background: #fbfcfb;
+  border: 1px solid #c9d3d1;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.o-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #35577d;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+.o-input,
+.o-select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #b9c4c2;
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+  color: #1e3231;
+}
+.o-input:focus,
+.o-select:focus {
+  outline: 2px solid #35577d;
+  outline-offset: 1px;
+}
+.o-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.o-btn {
+  background: #35577d;
+  color: #fbfcfb;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.o-btn.ghost {
+  background: #fbfcfb;
+  color: #35577d;
+  border: 1.5px solid #35577d;
+}
+.o-btn.danger {
+  background: #fbfcfb;
+  color: #c4442e;
+  border: 1.5px solid #c4442e;
+}
+.o-btn.sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+.o-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  border-left: 4px solid #d9a62e;
+  padding-left: 10px;
+  margin: 20px 0 12px;
+}
+.o-row {
+  background: #fbfcfb;
+  border: 1px solid #c9d3d1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.o-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #edf1f0;
+  color: #5a6b69;
+  margin-right: 6px;
+}
+.o-empty {
+  text-align: center;
+  color: #5a6b69;
+  padding: 50px 20px;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.o-minibar-track {
+  background: #edf1f0;
+  border-radius: 4px;
+  height: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.o-minibar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: #35577d;
+}
+@media (max-width: 560px) {
+  .o-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .o-title {
+    font-size: 21px;
+  }
+}

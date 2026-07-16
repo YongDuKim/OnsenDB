@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 .vite/
 
 /tmp/
+
+# vite-plugin-pwa dev output
+dev-dist/
