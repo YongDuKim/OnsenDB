@@ -56,12 +56,10 @@ export function ListView({
           style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
         >
           インポート
-          <input
-            type="file"
-            accept=".json,application/json,.txt,text/plain"
-            onChange={onImport}
-            style={{ display: 'none' }}
-          />
+          {/* accept は指定しない。スマホでは accept のフィルタにより
+              .txt 等が選べなくなることがあるため、どのファイルでも
+              選択できるようにし、中身の検証は取り込み時に行う */}
+          <input type="file" onChange={onImport} style={{ display: 'none' }} />
         </label>
       </div>
 
