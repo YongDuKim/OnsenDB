@@ -58,7 +58,7 @@ export function ListView({
           インポート
           <input
             type="file"
-            accept=".json,application/json"
+            accept=".json,application/json,.txt,text/plain"
             onChange={onImport}
             style={{ display: 'none' }}
           />
