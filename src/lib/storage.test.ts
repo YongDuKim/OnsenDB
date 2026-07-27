@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { loadRecords, saveRecords, storageSelfTest } from './storage'
+import { DEFAULT_RECORDS } from '../defaultRecords'
 import { STORAGE_KEY, emptyRecord } from '../schema'
 
 afterEach(() => {
@@ -13,7 +14,20 @@ describe('saveRecords / loadRecords', () => {
     expect(loadRecords()).toEqual([rec])
   })
 
-  it('未保存なら空配列', () => {
+  it('初回起動(未保存)は既定データを返す', () => {
+    expect(loadRecords()).toEqual(DEFAULT_RECORDS)
+  })
+
+  it('既定データは複製で返され、書き換えても定数へ波及しない', () => {
+    const first = loadRecords()
+    first[0]!.name = '書き換え'
+    first[0]!.values.cl = '99999'
+    expect(loadRecords()[0]!.name).toBe(DEFAULT_RECORDS[0]!.name)
+    expect(loadRecords()[0]!.values.cl).toBe(DEFAULT_RECORDS[0]!.values.cl)
+  })
+
+  it('全件削除して保存した後は既定データが復活しない', () => {
+    expect(saveRecords([])).toBe(true)
     expect(loadRecords()).toEqual([])
   })
 

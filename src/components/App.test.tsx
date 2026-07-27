@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
+import { DEFAULT_RECORDS } from '../defaultRecords'
 import { STORAGE_KEY, emptyRecord } from '../schema'
 import type { OnsenRecord } from '../types'
 
@@ -9,8 +10,12 @@ beforeEach(() => {
   vi.spyOn(window, 'alert').mockImplementation(() => {})
 })
 
+/** 既定データの入らない空の状態から始める(保存済みの空配列を置く) */
+const startEmpty = () => localStorage.setItem(STORAGE_KEY, '[]')
+
 describe('登録フロー', () => {
   it('フォームに入力して登録すると一覧に表示され、localStorage に保存される', async () => {
+    startEmpty()
     const user = userEvent.setup()
     render(<App />)
 
@@ -36,6 +41,7 @@ describe('登録フロー', () => {
   })
 
   it('施設名が空のまま登録するとエラーになり登録されない', async () => {
+    startEmpty()
     const user = userEvent.setup()
     render(<App />)
 
@@ -44,7 +50,7 @@ describe('登録フロー', () => {
 
     expect(window.alert).toHaveBeenCalledWith('施設名(源泉名)を入力してください')
     expect(screen.getByText(/登録 0 件/)).toBeInTheDocument()
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('[]')
   })
 
   it('保存済みレコードは次回起動時に読み込まれる', () => {
@@ -69,6 +75,7 @@ describe('バックアップ / 復元フロー', () => {
   })
 
   it('バックアップJSONを貼り付けて取り込むと復元される', async () => {
+    startEmpty()
     const rec = { ...emptyRecord(), name: '道後温泉' }
     const user = userEvent.setup()
     render(<App />)
@@ -86,6 +93,7 @@ describe('バックアップ / 復元フロー', () => {
   })
 
   it('壊れたJSONを取り込もうとするとエラーになりデータは変わらない', async () => {
+    startEmpty()
     const user = userEvent.setup()
     render(<App />)
 
@@ -100,6 +108,35 @@ describe('バックアップ / 復元フロー', () => {
       '内容を読み込めませんでした。バックアップしたJSONを指定してください。',
     )
     expect(screen.getByText(/登録 0 件/)).toBeInTheDocument()
+  })
+})
+
+describe('既定データ', () => {
+  it('初回起動では既定の分析書が登録済みの状態で表示される', () => {
+    render(<App />)
+    expect(screen.getByText(new RegExp(`登録 ${DEFAULT_RECORDS.length} 件`))).toBeInTheDocument()
+    expect(screen.getByText('下呂温泉')).toBeInTheDocument()
+    expect(screen.getByText('蔵王温泉(大湯一号源泉)')).toBeInTheDocument()
+  })
+
+  it('保存済みデータがあれば既定データは混ざらない', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([{ ...emptyRecord(), id: 'r1', name: '草津温泉' }]),
+    )
+    render(<App />)
+    expect(screen.getByText(/登録 1 件/)).toBeInTheDocument()
+    expect(screen.queryByText('下呂温泉')).not.toBeInTheDocument()
+  })
+
+  it('既定データは海水と違い編集・削除できる', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByText('下呂温泉'))
+    const row = screen.getByText('下呂温泉').closest('.o-row') as HTMLElement
+    expect(within(row).getByRole('button', { name: '編集' })).toBeInTheDocument()
+    expect(within(row).getByRole('button', { name: '削除' })).toBeInTheDocument()
   })
 })
 

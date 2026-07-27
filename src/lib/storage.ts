@@ -1,3 +1,4 @@
+import { defaultRecords } from '../defaultRecords'
 import { STORAGE_KEY } from '../schema'
 import type { OnsenRecord } from '../types'
 
@@ -9,11 +10,22 @@ import type { OnsenRecord } from '../types'
 
 const SELFTEST_KEY = 'onsen-db-selftest'
 
+/**
+ * 保存済みレコードを読み出す。
+ * キーが存在しない初回起動時のみ既定データを返す。全件削除して保存した場合は
+ * 空配列が保存されているため、既定データが復活することはない。
+ */
 export function loadRecords(): OnsenRecord[] {
+  let raw: string | null
   try {
-    const v = localStorage.getItem(STORAGE_KEY)
-    if (!v) return []
-    const data: unknown = JSON.parse(v)
+    raw = localStorage.getItem(STORAGE_KEY)
+  } catch {
+    // localStorage 自体が使えない環境。毎回が初回起動と同じ状態になる
+    return defaultRecords()
+  }
+  if (raw === null) return defaultRecords()
+  try {
+    const data: unknown = JSON.parse(raw)
     return Array.isArray(data) ? (data as OnsenRecord[]) : []
   } catch {
     return []
