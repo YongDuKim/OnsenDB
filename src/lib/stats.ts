@@ -59,6 +59,29 @@ export function linearFit(points: ReadonlyArray<{ x: number; y: number }>): Line
 /** 相関係数の表示。-1〜1 に収まるため小数3桁で固定する */
 export const formatR = (r: number): string => r.toFixed(3)
 
+export interface CorrelationBand {
+  /** この段に入る |r| の下限(以上) */
+  min: number
+  color: string
+  label: string
+}
+
+/**
+ * 相関の強さの段階。色は |r| で決まり、正負では変わらない。
+ * 判定は上から順に行うため、min の降順に並べること。
+ */
+export const CORRELATION_BANDS: CorrelationBand[] = [
+  { min: 0.75, color: '#35577D', label: '強い相関' },
+  { min: 0.5, color: '#5E9C6F', label: '中程度の相関' },
+  { min: 0.25, color: '#D9A62E', label: '弱い相関' },
+  { min: 0, color: '#8A9694', label: 'ほぼ相関なし' },
+]
+
+/** 相関係数から該当する段を返す。|r| は必ず 0〜1 なので必ずどれかに当たる */
+export const correlationBand = (r: number): CorrelationBand =>
+  CORRELATION_BANDS.find((b) => Math.abs(r) >= b.min) ??
+  CORRELATION_BANDS[CORRELATION_BANDS.length - 1]!
+
 /**
  * 回帰式の係数の表示。指標により桁が 0.0001〜数万と大きく振れるため
  * 有効数字3桁とし、toPrecision が返す指数表記は通常表記へ直す。

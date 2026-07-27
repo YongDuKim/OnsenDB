@@ -12,7 +12,14 @@ import {
 } from 'recharts'
 import { METRICS } from '../schema'
 import { fmt, getMetricValue } from '../lib/format'
-import { MIN_POINTS, formatEquation, formatR, linearFit } from '../lib/stats'
+import {
+  CORRELATION_BANDS,
+  MIN_POINTS,
+  correlationBand,
+  formatEquation,
+  formatR,
+  linearFit,
+} from '../lib/stats'
 import type { Metric, OnsenRecord } from '../types'
 
 interface ScatterDatum {
@@ -77,6 +84,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
   const seaData = all.filter((d) => d.builtin)
   // 海水は比較基準であって温泉ではないため、回帰・相関の計算からは除く
   const fit = linearFit(data)
+  const band = correlationBand(fit?.r ?? 0)
 
   return (
     <div className="o-card">
@@ -190,7 +198,29 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
           {fit ? (
             <span>
               <span style={{ color: '#C4442E', fontWeight: 700 }}>—</span> 近似直線 ・ n = {fit.n}{' '}
-              ・ r = <b style={{ color: '#2C3B39' }}>{formatR(fit.r)}</b> ・ {formatEquation(fit)}
+              ・ r = {/* 相関の強さを |r| の段階で色分けする。色は band の定義に従う */}
+              <b
+                style={{ color: band.color, fontSize: 14 }}
+                title={`${band.label}(|r| ${band.min} 以上)`}
+              >
+                {formatR(fit.r)}
+              </b>{' '}
+              ・ {formatEquation(fit)}
+              {/* 色の意味が分かるよう、しきい値を凡例として並べる */}
+              <span style={{ display: 'inline-flex', gap: 8, marginLeft: 10, flexWrap: 'wrap' }}>
+                {CORRELATION_BANDS.map((b) => (
+                  <span
+                    key={b.min}
+                    style={{
+                      color: b.color,
+                      fontWeight: b === band ? 700 : 400,
+                      opacity: b === band ? 1 : 0.55,
+                    }}
+                  >
+                    ● |r| ≧ {b.min}
+                  </span>
+                ))}
+              </span>
             </span>
           ) : data.length < MIN_POINTS ? (
             `※ 両方の指標が入力された温泉が${MIN_POINTS}件に満たないため、近似直線と相関係数は表示できません(現在 ${data.length} 件)`

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { formatCoef, formatEquation, formatR, linearFit } from './stats'
+import {
+  CORRELATION_BANDS,
+  correlationBand,
+  formatCoef,
+  formatEquation,
+  formatR,
+  linearFit,
+} from './stats'
 import { DEFAULT_RECORDS } from '../defaultRecords'
 import { num } from './format'
 
@@ -86,6 +93,40 @@ describe('linearFit', () => {
   it('ラドンは入力が3件で、下限ちょうどでも計算できる', () => {
     const fit = fitOf('rn', 'temp')!
     expect(fit.n).toBe(3)
+  })
+})
+
+describe('correlationBand', () => {
+  const labelOf = (r: number) => correlationBand(r).label
+
+  it('しきい値はその値を含む(以上)', () => {
+    expect(labelOf(0.75)).toBe('強い相関')
+    expect(labelOf(0.5)).toBe('中程度の相関')
+    expect(labelOf(0.25)).toBe('弱い相関')
+    expect(labelOf(0)).toBe('ほぼ相関なし')
+  })
+
+  it('しきい値の直下は一つ下の段になる', () => {
+    expect(labelOf(0.7499)).toBe('中程度の相関')
+    expect(labelOf(0.4999)).toBe('弱い相関')
+    expect(labelOf(0.2499)).toBe('ほぼ相関なし')
+  })
+
+  it('負の相関も絶対値で判定する', () => {
+    expect(correlationBand(-0.96)).toEqual(correlationBand(0.96))
+    expect(labelOf(-0.96)).toBe('強い相関')
+    expect(labelOf(-0.6)).toBe('中程度の相関')
+  })
+
+  it('両端でも段が決まる', () => {
+    expect(labelOf(1)).toBe('強い相関')
+    expect(labelOf(-1)).toBe('強い相関')
+  })
+
+  it('段の定義は min の降順で、色が重複しない', () => {
+    const mins = CORRELATION_BANDS.map((b) => b.min)
+    expect(mins).toEqual([...mins].sort((a, b) => b - a))
+    expect(new Set(CORRELATION_BANDS.map((b) => b.color)).size).toBe(CORRELATION_BANDS.length)
   })
 })
 
