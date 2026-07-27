@@ -9,6 +9,15 @@ export const num = (v: string | number | null | undefined): number | null =>
 export const fmt = (v: number | null | undefined): string =>
   v == null ? '—' : Number(v).toLocaleString('ja-JP', { maximumFractionDigits: 2 })
 
+/** 「都道府県市区町村」。どちらも未入力なら空文字 */
+export const placeOf = (rec: OnsenRecord): string => [rec.pref, rec.city].filter(Boolean).join('')
+
+/** グラフの見出し用に「施設名(場所)」を組み立てる。場所が未入力なら施設名のみ */
+export function recordLabel(rec: OnsenRecord): string {
+  const place = placeOf(rec)
+  return place ? `${rec.name}(${place})` : rec.name
+}
+
 /** "35.123, 138.456" などの貼り付け文字列から座標を抽出(日本近辺のみ受理) */
 export function parseCoordText(text: string): { lat: number; lng: number } | null {
   const m = String(text).match(/(-?\d{1,2}\.?\d*)[,\s、]+(-?\d{1,3}\.?\d*)/)

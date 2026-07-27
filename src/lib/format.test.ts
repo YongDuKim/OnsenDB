@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fmt, getMetricValue, num, parseCoordText } from './format'
+import { fmt, getMetricValue, num, parseCoordText, placeOf, recordLabel } from './format'
 import { emptyRecord } from '../schema'
 
 describe('num', () => {
@@ -42,6 +42,26 @@ describe('parseCoordText', () => {
   it('座標を含まない文字列は null', () => {
     expect(parseCoordText('')).toBeNull()
     expect(parseCoordText('草津温泉')).toBeNull()
+  })
+})
+
+describe('recordLabel / placeOf', () => {
+  const of = (pref: string, city: string, name = 'ひょうたん温泉') => ({
+    ...emptyRecord(),
+    name,
+    pref,
+    city,
+  })
+  it('施設名の後ろに都道府県と市区町村を付ける', () => {
+    expect(recordLabel(of('大分県', '別府市'))).toBe('ひょうたん温泉(大分県別府市)')
+  })
+  it('片方だけでも括弧に入れる', () => {
+    expect(recordLabel(of('東京都', ''))).toBe('ひょうたん温泉(東京都)')
+    expect(recordLabel(of('', '別府市'))).toBe('ひょうたん温泉(別府市)')
+  })
+  it('場所が未入力なら施設名のみ(海水など)', () => {
+    expect(recordLabel(of('', '', '海水(標準)'))).toBe('海水(標準)')
+    expect(placeOf(of('', ''))).toBe('')
   })
 })
 
