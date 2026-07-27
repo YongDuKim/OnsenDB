@@ -140,6 +140,48 @@ describe('既定データ', () => {
   })
 })
 
+describe('ラドン', () => {
+  it('比較・散布図の指標として3単位すべてを選べる', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '比較' }))
+    const compare = screen.getByLabelText('指標を選択')
+    for (const u of ['ラドン(Bq/kg)', 'ラドン(×10⁻¹⁰ Ci/kg)', 'ラドン(マッヘ単位)']) {
+      expect(within(compare).getByRole('option', { name: u })).toBeInTheDocument()
+    }
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    for (const axis of ['横軸', '縦軸']) {
+      const sel = screen.getByLabelText(axis)
+      expect(within(sel).getByRole('option', { name: 'ラドン(Bq/kg)' })).toBeInTheDocument()
+      expect(within(sel).getByRole('option', { name: 'ラドン(マッヘ単位)' })).toBeInTheDocument()
+    }
+  })
+
+  it('一覧の詳細では3単位を併記する', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByText('猫啼温泉'))
+    const row = screen.getByText('猫啼温泉').closest('.o-row') as HTMLElement
+    // memo にも同じ記述が残っているため、放射能の欄に絞って確認する
+    const radon = within(row).getByText('放射能').parentElement as HTMLElement
+    expect(within(radon).getByText(/ラドン 91\.8 Bq\/kg/)).toBeInTheDocument()
+    expect(within(radon).getByText(/24\.81 ×10⁻¹⁰ Ci\/kg/)).toBeInTheDocument()
+    expect(within(radon).getByText(/6\.82 マッヘ単位/)).toBeInTheDocument()
+  })
+
+  it('ラドン未入力の温泉には放射能の欄が出ない', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByText('下呂温泉'))
+    const row = screen.getByText('下呂温泉').closest('.o-row') as HTMLElement
+    expect(within(row).queryByText(/Bq\/kg/)).not.toBeInTheDocument()
+  })
+})
+
 describe('一覧', () => {
   it('海水(比較基準)が常に表示される', () => {
     render(<App />)

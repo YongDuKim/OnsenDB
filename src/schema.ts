@@ -77,6 +77,12 @@ export const COMPONENT_GROUPS: ComponentGroup[] = [
       { id: 'h2s', label: '遊離硫化水素 (H₂S)', short: '遊離H₂S', unit: 'mg/kg' },
     ],
   },
+  {
+    id: 'radioactivity',
+    title: '放射能',
+    // Bq/kg で1値だけ保持し、Ci/kg・マッヘ単位は表示時に換算する(lib/radon.ts)
+    items: [{ id: 'rn', label: 'ラドン (Rn)', short: 'ラドン', unit: 'Bq/kg' }],
+  },
 ]
 
 // 派生リスト(既存データのid・保存形式はそのまま)
@@ -146,6 +152,9 @@ export const METRICS: Metric[] = [
   { id: 'ph', label: 'pH', unit: '', kind: 'ph' },
   { id: 'tds', label: '溶存物質総量', unit: 'mg/kg', kind: 'conc' },
   ...ALL_COMPONENTS.map((c): Metric => ({ id: c.id, label: c.short, unit: c.unit, kind: 'conc' })),
+  // ラドンは保存値(Bq/kg)からの換算指標も選べるようにする
+  { id: 'rn_ci', label: 'ラドン', unit: '×10⁻¹⁰ Ci/kg', kind: 'conc' },
+  { id: 'rn_mache', label: 'ラドン', unit: 'マッヘ単位', kind: 'conc' },
 ]
 
 export const PREFS: [string, number, number][] = [

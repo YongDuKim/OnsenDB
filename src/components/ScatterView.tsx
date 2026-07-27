@@ -91,6 +91,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             {METRICS.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label}
+                {m.unit ? `(${m.unit})` : ''}
               </option>
             ))}
           </select>
@@ -108,6 +109,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             {METRICS.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label}
+                {m.unit ? `(${m.unit})` : ''}
               </option>
             ))}
           </select>

@@ -209,6 +209,7 @@ export const DEFAULT_RECORDS: OnsenRecord[] = [
       al: '0.009',
       cu: '0.001',
       haso2: '0.005',
+      rn: '0.24',
     },
   },
   {
@@ -500,6 +501,7 @@ export const DEFAULT_RECORDS: OnsenRecord[] = [
       al: '0.032',
       sr: '0.007',
       mn: '0.002',
+      rn: '5.7',
     },
   },
   {
@@ -747,6 +749,8 @@ export const DEFAULT_RECORDS: OnsenRecord[] = [
       h2sio3: '30.6',
       hbo2: '0.1',
       co2: '35.2',
+      // 分析書は 24.8×10⁻¹⁰ Ci/kg 表記。Bq/kg へ換算して保持
+      rn: '91.8',
     },
   },
 ]

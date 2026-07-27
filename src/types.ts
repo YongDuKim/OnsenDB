@@ -6,7 +6,7 @@ export interface ComponentDef {
   unit: string
 }
 
-export type ComponentGroupId = 'cation' | 'anion' | 'free' | 'gas'
+export type ComponentGroupId = 'cation' | 'anion' | 'free' | 'gas' | 'radioactivity'
 
 export interface ComponentGroup {
   id: ComponentGroupId

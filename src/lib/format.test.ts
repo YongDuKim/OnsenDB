@@ -56,4 +56,15 @@ describe('getMetricValue', () => {
     expect(getMetricValue(rec, 'cl')).toBe(1000)
     expect(getMetricValue(rec, 'so4')).toBeNull()
   })
+  it('ラドンは Bq/kg の保存値から他単位へ換算される', () => {
+    const rn = { ...emptyRecord(), values: { rn: '91.8' } }
+    expect(getMetricValue(rn, 'rn')).toBe(91.8)
+    expect(getMetricValue(rn, 'rn_ci')).toBeCloseTo(24.8, 1)
+    expect(getMetricValue(rn, 'rn_mache')).toBeCloseTo(6.82, 1)
+  })
+  it('ラドン未入力なら換算指標も null', () => {
+    expect(getMetricValue(rec, 'rn')).toBeNull()
+    expect(getMetricValue(rec, 'rn_ci')).toBeNull()
+    expect(getMetricValue(rec, 'rn_mache')).toBeNull()
+  })
 })

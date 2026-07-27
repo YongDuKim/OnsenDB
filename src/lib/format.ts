@@ -1,3 +1,4 @@
+import { bqToCi, bqToMache } from './radon'
 import type { OnsenRecord } from '../types'
 
 /** 入力文字列を数値に変換。空・非数値は null */
@@ -22,5 +23,11 @@ export function getMetricValue(rec: OnsenRecord, metricId: string): number | nul
   if (metricId === 'temp') return num(rec.temp)
   if (metricId === 'ph') return num(rec.ph)
   if (metricId === 'tds') return num(rec.tds)
+  // ラドンは Bq/kg の保存値から他単位へ換算する
+  if (metricId === 'rn_ci' || metricId === 'rn_mache') {
+    const bq = num(rec.values?.rn)
+    if (bq == null) return null
+    return metricId === 'rn_ci' ? bqToCi(bq) : bqToMache(bq)
+  }
   return num(rec.values?.[metricId])
 }

@@ -2,6 +2,7 @@ import React from 'react'
 import { ALL_COMPONENTS, COMPONENT_GROUPS, ION_COMPONENTS } from '../schema'
 import { fmt, num } from '../lib/format'
 import { metricColor } from '../lib/color'
+import { bqToCi, bqToMache } from '../lib/radon'
 import type { OnsenRecord } from '../types'
 
 /* ============================================================
@@ -25,6 +26,7 @@ export function RecordRow({
   onDelete: (r: OnsenRecord) => void
 }) {
   const t = num(r.temp)
+  const rn = num(r.values?.rn)
   const maxIon = Math.max(...ION_COMPONENTS.map((c) => num(r.values?.[c.id]) ?? 0), 1)
   const builtin = !!r.builtin
   return (
@@ -170,6 +172,31 @@ export function RecordRow({
               </div>
             )
           })}
+          {rn != null && (
+            <div style={{ fontSize: 12, marginTop: 6 }}>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#5A6B69',
+                  letterSpacing: '0.08em',
+                  marginRight: 6,
+                }}
+              >
+                放射能
+              </span>
+              {/* 分析書と同じく3単位を併記する(保存値は Bq/kg のみ) */}
+              <span className="o-badge" style={{ background: '#EBF2F6', color: '#2E4F70' }}>
+                ラドン {fmt(rn)} Bq/kg
+              </span>
+              <span className="o-badge" style={{ background: '#EBF2F6', color: '#2E4F70' }}>
+                {fmt(bqToCi(rn))} ×10⁻¹⁰ Ci/kg
+              </span>
+              <span className="o-badge" style={{ background: '#EBF2F6', color: '#2E4F70' }}>
+                {fmt(bqToMache(rn))} マッヘ単位
+              </span>
+            </div>
+          )}
           {ALL_COMPONENTS.every((c) => num(r.values?.[c.id]) == null) && (
             <div style={{ fontSize: 12, color: '#5A6B69' }}>成分データは未入力です。</div>
           )}
