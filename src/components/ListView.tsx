@@ -1,5 +1,6 @@
 import { SEAWATER } from '../schema'
 import { num } from '../lib/format'
+import { sortByPref } from '../lib/sort'
 import type { OnsenRecord } from '../types'
 import { RecordRow } from './RecordRow'
 
@@ -34,6 +35,8 @@ export function ListView({
   const tempVals = records.map((r) => num(r.temp)).filter((v): v is number => v != null)
   const tMin = Math.min(...tempVals, 20)
   const tMax = Math.max(...tempVals, 60)
+  // 一覧だけ都道府県順に並べる。他のタブは指標順・地理順なので元の並びのまま
+  const sorted = sortByPref(records)
 
   return (
     <div>
@@ -86,7 +89,7 @@ export function ListView({
         onDelete={() => {}}
       />
 
-      {records.map((r) => (
+      {sorted.map((r) => (
         <RecordRow
           key={r.id}
           r={r}

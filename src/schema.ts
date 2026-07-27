@@ -211,6 +211,9 @@ export const PREF_COORD: Record<string, [number, number]> = Object.fromEntries(
   PREFS.map(([n, la, lo]) => [n, [la, lo] as [number, number]]),
 )
 
+/** 都道府県の並び順(PREFS の定義順 = 北海道から沖縄県までの全国地方公共団体コード順) */
+export const PREF_ORDER: Record<string, number> = Object.fromEntries(PREFS.map(([n], i) => [n, i]))
+
 export const STORAGE_KEY = 'onsen-db-v1'
 
 /* ============================================================

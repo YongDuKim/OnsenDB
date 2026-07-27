@@ -55,7 +55,7 @@ export function RecordRow({
           />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 15 }}>
+          <div className="o-row-name" style={{ fontWeight: 700, fontSize: 15 }}>
             {r.name}
             {builtin && (
               <span

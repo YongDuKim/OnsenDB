@@ -140,6 +140,53 @@ describe('既定データ', () => {
   })
 })
 
+describe('一覧の並び順', () => {
+  /** 画面に出ている順に施設名を拾う。先頭は常に海水なので落とす */
+  const namesInOrder = () =>
+    Array.from(document.querySelectorAll('.o-row-name'))
+      .map((el) => el.textContent ?? '')
+      .slice(1)
+
+  it('都道府県順(北海道→沖縄県)で並ぶ', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        { ...emptyRecord(), id: 'r1', name: '別府温泉', pref: '大分県', city: '別府市' },
+        { ...emptyRecord(), id: 'r2', name: '登別温泉', pref: '北海道', city: '登別市' },
+        { ...emptyRecord(), id: 'r3', name: '草津温泉', pref: '群馬県', city: '草津町' },
+      ]),
+    )
+    render(<App />)
+    expect(namesInOrder()).toEqual(['登別温泉', '草津温泉', '別府温泉'])
+  })
+
+  it('都道府県が未入力のものは末尾に来る', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        { ...emptyRecord(), id: 'r1', name: '所在地なし温泉', pref: '' },
+        { ...emptyRecord(), id: 'r2', name: '登別温泉', pref: '北海道' },
+      ]),
+    )
+    render(<App />)
+    expect(namesInOrder()).toEqual(['登別温泉', '所在地なし温泉'])
+  })
+
+  it('既定データは北海道で始まり大分県で終わる', () => {
+    render(<App />)
+    const names = namesInOrder()
+    expect(names.slice(0, 2)).toEqual(['阿寒湖温泉(第七号源泉)', '網走湖温泉'])
+    expect(names[names.length - 1]).toBe('ひょうたん温泉')
+  })
+
+  it('検索で絞り込んでも並び順は保たれる', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.type(screen.getByPlaceholderText('施設名・都道府県・泉質で検索'), '東京都')
+    expect(namesInOrder()).toEqual(['ひんぎゃの恵', '中之郷温泉', '末吉かん沢温泉'])
+  })
+})
+
 describe('ラドン', () => {
   it('比較・散布図の指標として3単位すべてを選べる', async () => {
     const user = userEvent.setup()
