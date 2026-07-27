@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -11,6 +12,7 @@ import {
 } from 'recharts'
 import { METRICS } from '../schema'
 import { fmt, getMetricValue } from '../lib/format'
+import { MIN_POINTS, formatEquation, formatR, linearFit } from '../lib/stats'
 import type { Metric, OnsenRecord } from '../types'
 
 interface ScatterDatum {
@@ -73,6 +75,8 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
     .filter((d): d is ScatterDatum => d.x != null && d.y != null)
   const data = all.filter((d) => !d.builtin)
   const seaData = all.filter((d) => d.builtin)
+  // 海水は比較基準であって温泉ではないため、回帰・相関の計算からは除く
+  const fit = linearFit(data)
 
   return (
     <div className="o-card">
@@ -119,7 +123,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
         {seaData.length > 0 ? (
           <span>
             <span style={{ color: '#0E7490', fontWeight: 700 }}>◆</span>{' '}
-            青緑のひし形が海水(比較基準)です
+            青緑のひし形が海水(比較基準)です。温泉の傾向を見るため、相関の計算からは除いています
           </span>
         ) : (
           '※ 海水(比較基準)は選択中の軸のデータがないため表示されません(泉温など)'
@@ -166,8 +170,34 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             {seaData.length > 0 && (
               <Scatter data={seaData} fill="#0E7490" shape="diamond" legendType="diamond" />
             )}
+            {fit && (
+              // データのある x 範囲だけに引く(外挿すると濃度が負の領域まで線が伸びるため)
+              <ReferenceLine
+                stroke="#C4442E"
+                strokeWidth={2}
+                ifOverflow="hidden"
+                segment={[
+                  { x: fit.xMin, y: fit.slope * fit.xMin + fit.intercept },
+                  { x: fit.xMax, y: fit.slope * fit.xMax + fit.intercept },
+                ]}
+              />
+            )}
           </ScatterChart>
         </ResponsiveContainer>
+      )}
+      {all.length > 0 && (
+        <div style={{ fontSize: 12, marginTop: 8, color: '#5A6B69' }}>
+          {fit ? (
+            <span>
+              <span style={{ color: '#C4442E', fontWeight: 700 }}>—</span> 近似直線 ・ n = {fit.n}{' '}
+              ・ r = <b style={{ color: '#2C3B39' }}>{formatR(fit.r)}</b> ・ {formatEquation(fit)}
+            </span>
+          ) : data.length < MIN_POINTS ? (
+            `※ 両方の指標が入力された温泉が${MIN_POINTS}件に満たないため、近似直線と相関係数は表示できません(現在 ${data.length} 件)`
+          ) : (
+            '※ どちらかの指標が全温泉で同じ値のため、近似直線と相関係数を計算できません'
+          )}
+        </div>
       )}
     </div>
   )
