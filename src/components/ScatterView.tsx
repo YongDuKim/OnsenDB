@@ -85,6 +85,13 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
   // 海水は比較基準であって温泉ではないため、回帰・相関の計算からは除く
   const fit = linearFit(data)
   const band = correlationBand(fit?.r ?? 0)
+  // ReferenceLine の segment は2点固定のタプル。縁取りと本体で同じものを使う
+  const fitSegment: readonly [{ x: number; y: number }, { x: number; y: number }] | undefined = fit
+    ? [
+        { x: fit.xMin, y: fit.slope * fit.xMin + fit.intercept },
+        { x: fit.xMax, y: fit.slope * fit.xMax + fit.intercept },
+      ]
+    : undefined
 
   return (
     <div className="o-card">
@@ -178,16 +185,25 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             {seaData.length > 0 && (
               <Scatter data={seaData} fill="#0E7490" shape="diamond" legendType="diamond" />
             )}
+            {/*
+              データのある x 範囲だけに引く(外挿すると濃度が負の領域まで線が伸びるため)。
+              線の色は相関の強さを表すため、強い相関では点(藍)と同じ色になる。
+              重なっても線と分かるよう、白い縁取りを下に敷いてから本体を描く。
+            */}
             {fit && (
-              // データのある x 範囲だけに引く(外挿すると濃度が負の領域まで線が伸びるため)
               <ReferenceLine
-                stroke="#C4442E"
-                strokeWidth={2}
+                stroke="#FBFCFB"
+                strokeWidth={6}
                 ifOverflow="hidden"
-                segment={[
-                  { x: fit.xMin, y: fit.slope * fit.xMin + fit.intercept },
-                  { x: fit.xMax, y: fit.slope * fit.xMax + fit.intercept },
-                ]}
+                segment={fitSegment}
+              />
+            )}
+            {fit && (
+              <ReferenceLine
+                stroke={band.color}
+                strokeWidth={2.5}
+                ifOverflow="hidden"
+                segment={fitSegment}
               />
             )}
           </ScatterChart>
@@ -197,7 +213,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
         <div style={{ fontSize: 12, marginTop: 8, color: '#5A6B69' }}>
           {fit ? (
             <span>
-              <span style={{ color: '#C4442E', fontWeight: 700 }}>—</span> 近似直線 ・ n = {fit.n}{' '}
+              <span style={{ color: band.color, fontWeight: 700 }}>—</span> 近似直線 ・ n = {fit.n}{' '}
               ・ r = {/* 相関の強さを |r| の段階で色分けする。色は band の定義に従う */}
               <b
                 style={{ color: band.color, fontSize: 14 }}
