@@ -182,11 +182,36 @@ body {
   border-radius: 4px;
   background: #35577d;
 }
+.o-mode-switch {
+  display: flex;
+  border: 1px solid #35577d;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.o-mode-switch button {
+  border: none;
+  background: #fbfcfb;
+  color: #35577d;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.o-mode-switch button.active {
+  background: #35577d;
+  color: #fbfcfb;
+}
 @media (max-width: 560px) {
   .o-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .o-title {
     font-size: 21px;
+  }
+  .o-mode-switch button {
+    padding: 7px 9px;
+    font-size: 12px;
   }
 }

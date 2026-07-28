@@ -11,13 +11,18 @@ import { ScatterView } from './ScatterView'
 import { MapView } from './MapView'
 import { ConstantsView } from './ConstantsView'
 import { BackupModal } from './BackupModal'
+import { GsjMode } from './GsjMode'
 
 type StorageStatus = 'ok' | 'unavailable'
+
+/** マイ分析帳(編集可・localStorage)と産総研データ(閲覧専用・配布データセット)の2モード */
+type Mode = 'mine' | 'gsj'
 
 export default function App() {
   // localStorage は同期なので、初回描画時に読み込みと保存機能の自己診断を済ませる
   const [records, setRecords] = useState<OnsenRecord[]>(() => loadRecords())
   const [storageStatus] = useState<StorageStatus>(() => (storageSelfTest() ? 'ok' : 'unavailable'))
+  const [mode, setMode] = useState<Mode>('mine')
   const [tab, setTab] = useState('list')
   const [form, setForm] = useState<OnsenRecord>(emptyRecord())
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -121,22 +126,47 @@ export default function App() {
         <div className="o-seal">泉</div>
         <div>
           <h1 className="o-title">温泉分析帳</h1>
-          <div className="o-sub">私設・温泉分析書データベース ─ 登録 {records.length} 件</div>
+          <div className="o-sub">
+            {mode === 'mine'
+              ? `私設・温泉分析書データベース ─ 登録 ${records.length} 件`
+              : '産総研 地熱情報データベースの分析値を閲覧中(閲覧専用)'}
+          </div>
         </div>
-        {saveMsg && (
+        {mode === 'mine' && saveMsg && (
           <div style={{ marginLeft: 'auto', fontSize: 12, color: '#5E9C6F', fontWeight: 700 }}>
             {saveMsg}
           </div>
         )}
-        <button
-          className="o-btn ghost sm"
-          style={{ marginLeft: saveMsg ? 0 : 'auto', flexShrink: 0 }}
-          onClick={() => setBackupOpen(true)}
+        <div
+          className="o-mode-switch"
+          style={{ marginLeft: mode === 'mine' && saveMsg ? 0 : 'auto' }}
         >
-          バックアップ
-        </button>
+          <button
+            className={mode === 'mine' ? 'active' : ''}
+            onClick={() => setMode('mine')}
+            aria-pressed={mode === 'mine'}
+          >
+            マイ分析帳
+          </button>
+          <button
+            className={mode === 'gsj' ? 'active' : ''}
+            onClick={() => setMode('gsj')}
+            aria-pressed={mode === 'gsj'}
+          >
+            産総研データ
+          </button>
+        </div>
+        {mode === 'mine' && (
+          <button
+            className="o-btn ghost sm"
+            style={{ flexShrink: 0 }}
+            onClick={() => setBackupOpen(true)}
+          >
+            バックアップ
+          </button>
+        )}
       </header>
-      {storageStatus === 'unavailable' && (
+      {mode === 'mine' && storageStatus === 'unavailable' && (
         <div
           style={{
             background: '#F6EED8',
@@ -160,7 +190,7 @@ export default function App() {
           )}
         </div>
       )}
-      {saveFailed && storageStatus !== 'unavailable' && (
+      {mode === 'mine' && saveFailed && storageStatus !== 'unavailable' && (
         <div
           style={{
             background: '#FBEAE6',
@@ -191,57 +221,60 @@ export default function App() {
           onRestore={restoreJsonText}
         />
       )}
-      <nav className="o-tabs">
-        {tabs.map(([id, label]) => (
-          <button
-            key={id}
-            className={'o-tab' + (tab === id ? ' active' : '')}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
-      <main className="o-main">
+      {mode === 'gsj' && <GsjMode />}
+      {mode === 'mine' && (
         <>
-          {tab === 'form' && (
-            <FormView
-              form={form}
-              setForm={setForm}
-              editing={!!editingId}
-              onSubmit={submitForm}
-              onCancel={() => {
-                setForm(emptyRecord())
-                setEditingId(null)
-                setTab('list')
-              }}
-            />
-          )}
-          {tab === 'list' && (
-            <ListView
-              records={filtered}
-              total={records.length}
-              query={query}
-              setQuery={setQuery}
-              openId={openId}
-              setOpenId={setOpenId}
-              onEdit={startEdit}
-              onDelete={remove}
-              onExport={() => setBackupOpen(true)}
-              onImport={importJson}
-              onNew={() => {
-                setForm(emptyRecord())
-                setEditingId(null)
-                setTab('form')
-              }}
-            />
-          )}
-          {tab === 'compare' && <CompareView records={[...records, SEAWATER]} />}
-          {tab === 'scatter' && <ScatterView records={[...records, SEAWATER]} />}
-          {tab === 'map' && <MapView records={records} />}
-          {tab === 'const' && <ConstantsView records={[...records, SEAWATER]} />}
+          <nav className="o-tabs">
+            {tabs.map(([id, label]) => (
+              <button
+                key={id}
+                className={'o-tab' + (tab === id ? ' active' : '')}
+                onClick={() => setTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <main className="o-main">
+            {tab === 'form' && (
+              <FormView
+                form={form}
+                setForm={setForm}
+                editing={!!editingId}
+                onSubmit={submitForm}
+                onCancel={() => {
+                  setForm(emptyRecord())
+                  setEditingId(null)
+                  setTab('list')
+                }}
+              />
+            )}
+            {tab === 'list' && (
+              <ListView
+                records={filtered}
+                total={records.length}
+                query={query}
+                setQuery={setQuery}
+                openId={openId}
+                setOpenId={setOpenId}
+                onEdit={startEdit}
+                onDelete={remove}
+                onExport={() => setBackupOpen(true)}
+                onImport={importJson}
+                onNew={() => {
+                  setForm(emptyRecord())
+                  setEditingId(null)
+                  setTab('form')
+                }}
+              />
+            )}
+            {tab === 'compare' && <CompareView records={[...records, SEAWATER]} />}
+            {tab === 'scatter' && <ScatterView records={[...records, SEAWATER]} />}
+            {tab === 'map' && <MapView records={records} />}
+            {tab === 'const' && <ConstantsView records={[...records, SEAWATER]} />}
+          </main>
         </>
-      </main>
+      )}
     </div>
   )
 }

@@ -39,6 +39,8 @@ export interface OnsenRecord {
   lng: number | null
   coordText: string
   memo: string
+  /** 出典コード(産総研データ由来のレコードのみ。自分の登録では使わない) */
+  source?: string
   values: Record<string, string>
 }
 

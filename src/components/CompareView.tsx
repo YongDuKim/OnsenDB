@@ -68,10 +68,10 @@ function CategoryTick({
 /* ============================================================
    比較(棒グラフ)
    ============================================================ */
-export function CompareView({ records }: { records: OnsenRecord[] }) {
+export function CompareView({ records, maxBars }: { records: OnsenRecord[]; maxBars?: number }) {
   const [metricId, setMetricId] = useState('temp')
   const metric = METRICS.find((m) => m.id === metricId) ?? METRICS[0]!
-  const data = records
+  const all = records
     .map((r) => ({
       label: recordLabel(r),
       name: r.name,
@@ -81,6 +81,16 @@ export function CompareView({ records }: { records: OnsenRecord[] }) {
     }))
     .filter((d): d is Row => d.value != null)
     .sort((a, b) => b.value - a.value)
+  // 大量データでは上位だけ表示する(1件42pxの棒を数千本描くと画面が破綻するため)。
+  // 比較基準(海水)は圏外でも落とさず、値順を保ったまま挿し込む
+  let data = all
+  if (maxBars != null && all.length > maxBars) {
+    const top = all.slice(0, maxBars)
+    for (const d of all.slice(maxBars)) if (d.builtin) top.push(d)
+    top.sort((a, b) => b.value - a.value)
+    data = top
+  }
+  const omitted = all.length - data.length
   const rows = new Map(data.map((d) => [d.label, d]))
   const vals = data.filter((d) => !d.builtin).map((d) => d.value)
   const vMin = vals.length ? Math.min(...vals) : 0
@@ -117,6 +127,12 @@ export function CompareView({ records }: { records: OnsenRecord[] }) {
           '※ 海水(比較基準)はこの指標のデータがないため表示されません(泉温など)'
         )}
       </div>
+      {omitted > 0 && (
+        <div style={{ fontSize: 12, color: '#8A6A16', marginBottom: 8 }}>
+          ※ 値の大きい順に上位 {maxBars} 件を表示しています({omitted.toLocaleString('ja-JP')}{' '}
+          件は省略)。絞り込みで対象を減らすと全件表示されます
+        </div>
+      )}
       {data.length === 0 ? (
         <div className="o-empty">この指標のデータが入力された温泉がまだありません。</div>
       ) : (

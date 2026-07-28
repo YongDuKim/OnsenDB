@@ -83,6 +83,8 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
     .filter((d): d is ScatterDatum => d.x != null && d.y != null)
   const data = all.filter((d) => !d.builtin)
   const seaData = all.filter((d) => d.builtin)
+  // 点数が多いときは点を小さくして重なりを見やすくする(値は recharts の面積指定)
+  const dotArea = data.length > 1500 ? 18 : data.length > 300 ? 42 : 90
   // 海水は比較基準であって温泉ではないため、回帰・相関の計算からは除く
   const fit = linearFit(data)
   const band = correlationBand(fit?.r ?? 0)
@@ -181,14 +183,28 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
               }}
               domain={['auto', 'auto']}
             />
-            <ZAxis range={[90, 90]} />
+            {/* 産総研データなど数千点の描画に備え、点数に応じて点を小さくする */}
+            <ZAxis range={[dotArea, dotArea]} />
+            <ZAxis zAxisId="sea" range={[90, 90]} />
             <Tooltip
               cursor={{ strokeDasharray: '3 3' }}
               content={<ScatterTooltip mx={mx} my={my} />}
             />
-            <Scatter data={data} fill="#35577D" fillOpacity={0.85} />
+            <Scatter
+              data={data}
+              fill="#35577D"
+              fillOpacity={data.length > 300 ? 0.55 : 0.85}
+              isAnimationActive={false}
+            />
             {seaData.length > 0 && (
-              <Scatter data={seaData} fill="#0E7490" shape="diamond" legendType="diamond" />
+              <Scatter
+                data={seaData}
+                fill="#0E7490"
+                shape="diamond"
+                legendType="diamond"
+                zAxisId="sea"
+                isAnimationActive={false}
+              />
             )}
             {/*
               データのある x 範囲だけに引く(外挿すると濃度が負の領域まで線が伸びるため)。

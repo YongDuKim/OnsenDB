@@ -47,6 +47,16 @@ export default defineConfig({
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
+          {
+            // 産総研データセット(約2MB)。事前キャッシュせず、初回閲覧時に取得して保持する。
+            // ファイル名にバージョンを含むため CacheFirst で安全にオフライン対応できる
+            urlPattern: /\/gsj\/.*\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gsj-data',
+              expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
         ],
       },
     }),

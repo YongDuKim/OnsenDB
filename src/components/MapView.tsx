@@ -48,6 +48,10 @@ export function MapView({ records }: { records: OnsenRecord[] }) {
   const main = pts.filter((p) => p.lat >= 30)
   const south = pts.filter((p) => p.lat < 30) // 沖縄・奄美はインセットに
 
+  // 産総研データなど数千点の描画では点を小さくして分布を読めるようにする
+  const baseR = pts.length > 2000 ? 3 : pts.length > 600 ? 5.5 : 10
+  const strokeW = baseR < 7 ? 0.8 : 2
+
   const W = 700
   const H = 800
   const legendStops = [0, 0.25, 0.5, 0.75, 1]
@@ -104,10 +108,10 @@ export function MapView({ records }: { records: OnsenRecord[] }) {
                     key={i}
                     cx={x}
                     cy={y}
-                    r={hover === p.rec.id ? 13 : 10}
+                    r={hover === p.rec.id ? baseR + 3 : baseR}
                     fill={metricColor(metric.kind, p.v, vMin, vMax)}
                     stroke={p.exact ? '#1E3231' : '#FBFCFB'}
-                    strokeWidth={2}
+                    strokeWidth={strokeW}
                     strokeDasharray={p.exact ? '' : '3 2'}
                     style={{ cursor: 'pointer' }}
                     onMouseEnter={() => setHover(p.rec.id)}
@@ -140,10 +144,10 @@ export function MapView({ records }: { records: OnsenRecord[] }) {
                         key={i}
                         cx={x}
                         cy={y}
-                        r={hover === p.rec.id ? 13 : 10}
+                        r={hover === p.rec.id ? baseR + 3 : baseR}
                         fill={metricColor(metric.kind, p.v, vMin, vMax)}
                         stroke={p.exact ? '#1E3231' : '#FBFCFB'}
-                        strokeWidth={2}
+                        strokeWidth={strokeW}
                         strokeDasharray={p.exact ? '' : '3 2'}
                         style={{ cursor: 'pointer' }}
                         onMouseEnter={() => setHover(p.rec.id)}

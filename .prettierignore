@@ -3,3 +3,5 @@ dev-dist
 coverage
 node_modules
 tmp
+# 変換スクリプトの生成物(scripts/convert-gsj.ts で再生成)
+public/gsj
