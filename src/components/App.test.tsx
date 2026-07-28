@@ -229,6 +229,35 @@ describe('ラドン', () => {
   })
 })
 
+describe('2軸比較の単位', () => {
+  it('散布図では成分をモル濃度で選ぶ(比較タブは重量濃度のまま)', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '比較' }))
+    const compare = screen.getByLabelText('指標を選択')
+    expect(within(compare).getByRole('option', { name: 'Cl⁻(mg/kg)' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    for (const axis of ['横軸', '縦軸']) {
+      const sel = screen.getByLabelText(axis)
+      expect(within(sel).getByRole('option', { name: 'Cl⁻(mmol/kg)' })).toBeInTheDocument()
+      expect(within(sel).queryByRole('option', { name: 'Cl⁻(mg/kg)' })).not.toBeInTheDocument()
+      // 換算できない指標は分析書の単位のまま
+      expect(within(sel).getByRole('option', { name: 'ラドン(Bq/kg)' })).toBeInTheDocument()
+      expect(within(sel).getByRole('option', { name: '溶存物質総量(mg/kg)' })).toBeInTheDocument()
+    }
+  })
+
+  it('モル濃度で比べている旨を注記する', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    expect(screen.getByText(/モル濃度\(mmol\/kg\)に換算して比べています/)).toBeInTheDocument()
+  })
+})
+
 describe('一覧', () => {
   it('海水(比較基準)が常に表示される', () => {
     render(<App />)

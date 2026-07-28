@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { fmt, getMetricValue, num, parseCoordText, placeOf, recordLabel } from './format'
+import {
+  fmt,
+  getMetricValue,
+  getMolarMetricValue,
+  num,
+  parseCoordText,
+  placeOf,
+  recordLabel,
+} from './format'
 import { emptyRecord } from '../schema'
 
 describe('num', () => {
@@ -86,5 +94,42 @@ describe('getMetricValue', () => {
     expect(getMetricValue(rec, 'rn')).toBeNull()
     expect(getMetricValue(rec, 'rn_ci')).toBeNull()
     expect(getMetricValue(rec, 'rn_mache')).toBeNull()
+  })
+})
+
+describe('getMolarMetricValue', () => {
+  const rec = {
+    ...emptyRecord(),
+    temp: '42.5',
+    ph: '2.1',
+    tds: '3000',
+    values: { cl: '1000', na: '1000', rn: '91.8' },
+  }
+
+  it('成分は mmol/kg に換算される', () => {
+    expect(getMolarMetricValue(rec, 'cl')).toBeCloseTo(1000 / 35.45, 3)
+    expect(getMolarMetricValue(rec, 'na')).toBeCloseTo(1000 / 22.99, 3)
+  })
+
+  it('同じ重量でも成分ごとに物質量は違う', () => {
+    const cl = getMolarMetricValue(rec, 'cl')!
+    const na = getMolarMetricValue(rec, 'na')!
+    expect(na).toBeGreaterThan(cl)
+  })
+
+  it('ラドンは換算せず Bq/kg などのまま', () => {
+    expect(getMolarMetricValue(rec, 'rn')).toBe(91.8)
+    expect(getMolarMetricValue(rec, 'rn_ci')).toBeCloseTo(24.8, 1)
+    expect(getMolarMetricValue(rec, 'rn_mache')).toBeCloseTo(6.82, 1)
+  })
+
+  it('泉温・pH・溶存物質総量はそのまま', () => {
+    expect(getMolarMetricValue(rec, 'temp')).toBe(42.5)
+    expect(getMolarMetricValue(rec, 'ph')).toBe(2.1)
+    expect(getMolarMetricValue(rec, 'tds')).toBe(3000)
+  })
+
+  it('未入力は null', () => {
+    expect(getMolarMetricValue(rec, 'so4')).toBeNull()
   })
 })

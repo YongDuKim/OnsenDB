@@ -4,6 +4,11 @@ export interface ComponentDef {
   label: string
   short: string
   unit: string
+  /**
+   * モル濃度への換算に使う化学式(電荷は含めない)。
+   * 重量濃度でない項目(Bq/kg のラドンなど)は換算できないため持たない。
+   */
+  formula?: string
 }
 
 export type ComponentGroupId = 'cation' | 'anion' | 'free' | 'gas' | 'radioactivity'

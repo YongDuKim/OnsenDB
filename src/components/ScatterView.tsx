@@ -10,8 +10,8 @@ import {
   YAxis,
   ZAxis,
 } from 'recharts'
-import { METRICS } from '../schema'
-import { fmt, getMetricValue } from '../lib/format'
+import { MOLAR_METRICS } from '../schema'
+import { fmt, getMolarMetricValue } from '../lib/format'
 import {
   CORRELATION_BANDS,
   MIN_POINTS,
@@ -70,13 +70,14 @@ function ScatterTooltip({
 export function ScatterView({ records }: { records: OnsenRecord[] }) {
   const [xId, setXId] = useState('temp')
   const [yId, setYId] = useState('tds')
-  const mx = METRICS.find((m) => m.id === xId) ?? METRICS[0]!
-  const my = METRICS.find((m) => m.id === yId) ?? METRICS[0]!
+  // 成分は重量ではなくモル濃度で比べる(単位・値ともに MOLAR_ 系で揃える)
+  const mx = MOLAR_METRICS.find((m) => m.id === xId) ?? MOLAR_METRICS[0]!
+  const my = MOLAR_METRICS.find((m) => m.id === yId) ?? MOLAR_METRICS[0]!
   const all = records
     .map((r) => ({
       name: r.name,
-      x: getMetricValue(r, xId),
-      y: getMetricValue(r, yId),
+      x: getMolarMetricValue(r, xId),
+      y: getMolarMetricValue(r, yId),
       builtin: !!r.builtin,
     }))
     .filter((d): d is ScatterDatum => d.x != null && d.y != null)
@@ -107,7 +108,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             value={xId}
             onChange={(e) => setXId(e.target.value)}
           >
-            {METRICS.map((m) => (
+            {MOLAR_METRICS.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label}
                 {m.unit ? `(${m.unit})` : ''}
@@ -125,7 +126,7 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             value={yId}
             onChange={(e) => setYId(e.target.value)}
           >
-            {METRICS.map((m) => (
+            {MOLAR_METRICS.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label}
                 {m.unit ? `(${m.unit})` : ''}
@@ -133,6 +134,10 @@ export function ScatterView({ records }: { records: OnsenRecord[] }) {
             ))}
           </select>
         </div>
+      </div>
+      <div style={{ fontSize: 12, color: '#5A6B69', marginBottom: 4 }}>
+        ※ 成分は重量だと原子量の差で大小が変わるため、モル濃度(mmol/kg)に換算して比べています
+        (換算できないラドン・溶存物質総量は分析書の単位のまま)
       </div>
       <div style={{ fontSize: 12, color: '#5A6B69', marginBottom: 12 }}>
         {seaData.length > 0 ? (

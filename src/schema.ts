@@ -1,3 +1,4 @@
+import { molarMass } from './lib/molar'
 import type { AcidSystem, ComponentGroup, Metric, OnsenRecord } from './types'
 
 /* ============================================================
@@ -9,26 +10,38 @@ export const COMPONENT_GROUPS: ComponentGroup[] = [
     title: '陽イオン',
     items: [
       // 1価(第1族:H→Li→Na→K、次いでNH₄⁺)
-      { id: 'h', label: '水素イオン (H⁺)', short: 'H⁺', unit: 'mg/kg' },
-      { id: 'li', label: 'リチウムイオン (Li⁺)', short: 'Li⁺', unit: 'mg/kg' },
-      { id: 'na', label: 'ナトリウムイオン (Na⁺)', short: 'Na⁺', unit: 'mg/kg' },
-      { id: 'k', label: 'カリウムイオン (K⁺)', short: 'K⁺', unit: 'mg/kg' },
-      { id: 'nh4', label: 'アンモニウムイオン (NH₄⁺)', short: 'NH₄⁺', unit: 'mg/kg' },
+      { id: 'h', label: '水素イオン (H⁺)', short: 'H⁺', unit: 'mg/kg', formula: 'H' },
+      { id: 'li', label: 'リチウムイオン (Li⁺)', short: 'Li⁺', unit: 'mg/kg', formula: 'Li' },
+      { id: 'na', label: 'ナトリウムイオン (Na⁺)', short: 'Na⁺', unit: 'mg/kg', formula: 'Na' },
+      { id: 'k', label: 'カリウムイオン (K⁺)', short: 'K⁺', unit: 'mg/kg', formula: 'K' },
+      {
+        id: 'nh4',
+        label: 'アンモニウムイオン (NH₄⁺)',
+        short: 'NH₄⁺',
+        unit: 'mg/kg',
+        formula: 'NH4',
+      },
       // 2価(第2族:Mg→Ca→Sr→Ba、以降は族番号順)
-      { id: 'mg', label: 'マグネシウムイオン (Mg²⁺)', short: 'Mg²⁺', unit: 'mg/kg' },
-      { id: 'ca', label: 'カルシウムイオン (Ca²⁺)', short: 'Ca²⁺', unit: 'mg/kg' },
-      { id: 'sr', label: 'ストロンチウムイオン (Sr²⁺)', short: 'Sr²⁺', unit: 'mg/kg' },
-      { id: 'ba', label: 'バリウムイオン (Ba²⁺)', short: 'Ba²⁺', unit: 'mg/kg' },
-      { id: 'mn', label: 'マンガンイオン (Mn²⁺)', short: 'Mn²⁺', unit: 'mg/kg' },
-      { id: 'fe2', label: '鉄(II)イオン (Fe²⁺)', short: 'Fe²⁺', unit: 'mg/kg' },
-      { id: 'fe3', label: '鉄(III)イオン (Fe³⁺)', short: 'Fe³⁺', unit: 'mg/kg' },
-      { id: 'cu', label: '銅イオン (Cu²⁺)', short: 'Cu²⁺', unit: 'mg/kg' },
-      { id: 'zn', label: '亜鉛イオン (Zn²⁺)', short: 'Zn²⁺', unit: 'mg/kg' },
-      { id: 'cd', label: 'カドミウムイオン (Cd²⁺)', short: 'Cd²⁺', unit: 'mg/kg' },
-      { id: 'pb', label: '鉛イオン (Pb²⁺)', short: 'Pb²⁺', unit: 'mg/kg' },
+      { id: 'mg', label: 'マグネシウムイオン (Mg²⁺)', short: 'Mg²⁺', unit: 'mg/kg', formula: 'Mg' },
+      { id: 'ca', label: 'カルシウムイオン (Ca²⁺)', short: 'Ca²⁺', unit: 'mg/kg', formula: 'Ca' },
+      {
+        id: 'sr',
+        label: 'ストロンチウムイオン (Sr²⁺)',
+        short: 'Sr²⁺',
+        unit: 'mg/kg',
+        formula: 'Sr',
+      },
+      { id: 'ba', label: 'バリウムイオン (Ba²⁺)', short: 'Ba²⁺', unit: 'mg/kg', formula: 'Ba' },
+      { id: 'mn', label: 'マンガンイオン (Mn²⁺)', short: 'Mn²⁺', unit: 'mg/kg', formula: 'Mn' },
+      { id: 'fe2', label: '鉄(II)イオン (Fe²⁺)', short: 'Fe²⁺', unit: 'mg/kg', formula: 'Fe' },
+      { id: 'fe3', label: '鉄(III)イオン (Fe³⁺)', short: 'Fe³⁺', unit: 'mg/kg', formula: 'Fe' },
+      { id: 'cu', label: '銅イオン (Cu²⁺)', short: 'Cu²⁺', unit: 'mg/kg', formula: 'Cu' },
+      { id: 'zn', label: '亜鉛イオン (Zn²⁺)', short: 'Zn²⁺', unit: 'mg/kg', formula: 'Zn' },
+      { id: 'cd', label: 'カドミウムイオン (Cd²⁺)', short: 'Cd²⁺', unit: 'mg/kg', formula: 'Cd' },
+      { id: 'pb', label: '鉛イオン (Pb²⁺)', short: 'Pb²⁺', unit: 'mg/kg', formula: 'Pb' },
       // 3価(鉄はFe²⁺の隣に配置済み)
-      { id: 'cr', label: 'クロムイオン (Cr³⁺)', short: 'Cr³⁺', unit: 'mg/kg' },
-      { id: 'al', label: 'アルミニウムイオン (Al³⁺)', short: 'Al³⁺', unit: 'mg/kg' },
+      { id: 'cr', label: 'クロムイオン (Cr³⁺)', short: 'Cr³⁺', unit: 'mg/kg', formula: 'Cr' },
+      { id: 'al', label: 'アルミニウムイオン (Al³⁺)', short: 'Al³⁺', unit: 'mg/kg', formula: 'Al' },
     ],
   },
   {
@@ -36,45 +49,117 @@ export const COMPONENT_GROUPS: ComponentGroup[] = [
     title: '陰イオン',
     items: [
       // ハロゲンを先頭に、以降は酸の系列ごと(系列内は価数順、系列は族番号順)
-      { id: 'f', label: 'フッ化物イオン (F⁻)', short: 'F⁻', unit: 'mg/kg' },
-      { id: 'cl', label: '塩化物イオン (Cl⁻)', short: 'Cl⁻', unit: 'mg/kg' },
-      { id: 'br', label: '臭化物イオン (Br⁻)', short: 'Br⁻', unit: 'mg/kg' },
-      { id: 'i', label: 'ヨウ化物イオン (I⁻)', short: 'I⁻', unit: 'mg/kg' },
-      { id: 'bo2', label: 'メタホウ酸イオン (BO₂⁻)', short: 'BO₂⁻', unit: 'mg/kg' },
-      { id: 'hco3', label: '炭酸水素イオン (HCO₃⁻)', short: 'HCO₃⁻', unit: 'mg/kg' },
-      { id: 'co3', label: '炭酸イオン (CO₃²⁻)', short: 'CO₃²⁻', unit: 'mg/kg' },
-      { id: 'hsio3', label: 'メタケイ酸水素イオン (HSiO₃⁻)', short: 'HSiO₃⁻', unit: 'mg/kg' },
-      { id: 'sio3', label: 'メタケイ酸イオン (SiO₃²⁻)', short: 'SiO₃²⁻', unit: 'mg/kg' },
-      { id: 'no2', label: '亜硝酸イオン (NO₂⁻)', short: 'NO₂⁻', unit: 'mg/kg' },
-      { id: 'no3', label: '硝酸イオン (NO₃⁻)', short: 'NO₃⁻', unit: 'mg/kg' },
-      { id: 'h2po4', label: 'リン酸二水素イオン (H₂PO₄⁻)', short: 'H₂PO₄⁻', unit: 'mg/kg' },
-      { id: 'hpo4', label: 'リン酸水素イオン (HPO₄²⁻)', short: 'HPO₄²⁻', unit: 'mg/kg' },
-      { id: 'po4', label: 'リン酸イオン (PO₄³⁻)', short: 'PO₄³⁻', unit: 'mg/kg' },
-      { id: 'aso2', label: 'メタ亜ヒ酸イオン (AsO₂⁻)', short: 'AsO₂⁻', unit: 'mg/kg' },
-      { id: 'oh', label: '水酸化物イオン (OH⁻)', short: 'OH⁻', unit: 'mg/kg' },
-      { id: 'hs', label: '硫化水素イオン (HS⁻)', short: 'HS⁻', unit: 'mg/kg' },
-      { id: 's2', label: '硫化物イオン (S²⁻)', short: 'S²⁻', unit: 'mg/kg' },
-      { id: 'hs2o3', label: 'チオ硫酸水素イオン (HS₂O₃⁻)', short: 'HS₂O₃⁻', unit: 'mg/kg' },
-      { id: 's2o3', label: 'チオ硫酸イオン (S₂O₃²⁻)', short: 'S₂O₃²⁻', unit: 'mg/kg' },
-      { id: 'hso4', label: '硫酸水素イオン (HSO₄⁻)', short: 'HSO₄⁻', unit: 'mg/kg' },
-      { id: 'so4', label: '硫酸イオン (SO₄²⁻)', short: 'SO₄²⁻', unit: 'mg/kg' },
+      { id: 'f', label: 'フッ化物イオン (F⁻)', short: 'F⁻', unit: 'mg/kg', formula: 'F' },
+      { id: 'cl', label: '塩化物イオン (Cl⁻)', short: 'Cl⁻', unit: 'mg/kg', formula: 'Cl' },
+      { id: 'br', label: '臭化物イオン (Br⁻)', short: 'Br⁻', unit: 'mg/kg', formula: 'Br' },
+      { id: 'i', label: 'ヨウ化物イオン (I⁻)', short: 'I⁻', unit: 'mg/kg', formula: 'I' },
+      { id: 'bo2', label: 'メタホウ酸イオン (BO₂⁻)', short: 'BO₂⁻', unit: 'mg/kg', formula: 'BO2' },
+      {
+        id: 'hco3',
+        label: '炭酸水素イオン (HCO₃⁻)',
+        short: 'HCO₃⁻',
+        unit: 'mg/kg',
+        formula: 'HCO3',
+      },
+      { id: 'co3', label: '炭酸イオン (CO₃²⁻)', short: 'CO₃²⁻', unit: 'mg/kg', formula: 'CO3' },
+      {
+        id: 'hsio3',
+        label: 'メタケイ酸水素イオン (HSiO₃⁻)',
+        short: 'HSiO₃⁻',
+        unit: 'mg/kg',
+        formula: 'HSiO3',
+      },
+      {
+        id: 'sio3',
+        label: 'メタケイ酸イオン (SiO₃²⁻)',
+        short: 'SiO₃²⁻',
+        unit: 'mg/kg',
+        formula: 'SiO3',
+      },
+      { id: 'no2', label: '亜硝酸イオン (NO₂⁻)', short: 'NO₂⁻', unit: 'mg/kg', formula: 'NO2' },
+      { id: 'no3', label: '硝酸イオン (NO₃⁻)', short: 'NO₃⁻', unit: 'mg/kg', formula: 'NO3' },
+      {
+        id: 'h2po4',
+        label: 'リン酸二水素イオン (H₂PO₄⁻)',
+        short: 'H₂PO₄⁻',
+        unit: 'mg/kg',
+        formula: 'H2PO4',
+      },
+      {
+        id: 'hpo4',
+        label: 'リン酸水素イオン (HPO₄²⁻)',
+        short: 'HPO₄²⁻',
+        unit: 'mg/kg',
+        formula: 'HPO4',
+      },
+      { id: 'po4', label: 'リン酸イオン (PO₄³⁻)', short: 'PO₄³⁻', unit: 'mg/kg', formula: 'PO4' },
+      {
+        id: 'aso2',
+        label: 'メタ亜ヒ酸イオン (AsO₂⁻)',
+        short: 'AsO₂⁻',
+        unit: 'mg/kg',
+        formula: 'AsO2',
+      },
+      { id: 'oh', label: '水酸化物イオン (OH⁻)', short: 'OH⁻', unit: 'mg/kg', formula: 'OH' },
+      { id: 'hs', label: '硫化水素イオン (HS⁻)', short: 'HS⁻', unit: 'mg/kg', formula: 'HS' },
+      { id: 's2', label: '硫化物イオン (S²⁻)', short: 'S²⁻', unit: 'mg/kg', formula: 'S' },
+      {
+        id: 'hs2o3',
+        label: 'チオ硫酸水素イオン (HS₂O₃⁻)',
+        short: 'HS₂O₃⁻',
+        unit: 'mg/kg',
+        formula: 'HS2O3',
+      },
+      {
+        id: 's2o3',
+        label: 'チオ硫酸イオン (S₂O₃²⁻)',
+        short: 'S₂O₃²⁻',
+        unit: 'mg/kg',
+        formula: 'S2O3',
+      },
+      {
+        id: 'hso4',
+        label: '硫酸水素イオン (HSO₄⁻)',
+        short: 'HSO₄⁻',
+        unit: 'mg/kg',
+        formula: 'HSO4',
+      },
+      { id: 'so4', label: '硫酸イオン (SO₄²⁻)', short: 'SO₄²⁻', unit: 'mg/kg', formula: 'SO4' },
     ],
   },
   {
     id: 'free',
     title: '遊離成分',
     items: [
-      { id: 'h2sio3', label: 'メタケイ酸 (H₂SiO₃)', short: 'メタケイ酸', unit: 'mg/kg' },
-      { id: 'hbo2', label: 'メタホウ酸 (HBO₂)', short: 'メタホウ酸', unit: 'mg/kg' },
-      { id: 'haso2', label: 'メタ亜ヒ酸 (HAsO₂)', short: 'メタ亜ヒ酸', unit: 'mg/kg' },
+      {
+        id: 'h2sio3',
+        label: 'メタケイ酸 (H₂SiO₃)',
+        short: 'メタケイ酸',
+        unit: 'mg/kg',
+        formula: 'H2SiO3',
+      },
+      {
+        id: 'hbo2',
+        label: 'メタホウ酸 (HBO₂)',
+        short: 'メタホウ酸',
+        unit: 'mg/kg',
+        formula: 'HBO2',
+      },
+      {
+        id: 'haso2',
+        label: 'メタ亜ヒ酸 (HAsO₂)',
+        short: 'メタ亜ヒ酸',
+        unit: 'mg/kg',
+        formula: 'HAsO2',
+      },
     ],
   },
   {
     id: 'gas',
     title: '溶存ガス成分',
     items: [
-      { id: 'co2', label: '遊離二酸化炭素 (CO₂)', short: '遊離CO₂', unit: 'mg/kg' },
-      { id: 'h2s', label: '遊離硫化水素 (H₂S)', short: '遊離H₂S', unit: 'mg/kg' },
+      { id: 'co2', label: '遊離二酸化炭素 (CO₂)', short: '遊離CO₂', unit: 'mg/kg', formula: 'CO2' },
+      { id: 'h2s', label: '遊離硫化水素 (H₂S)', short: '遊離H₂S', unit: 'mg/kg', formula: 'H2S' },
     ],
   },
   {
@@ -90,6 +175,14 @@ export const ALL_COMPONENTS = COMPONENT_GROUPS.flatMap((g) => g.items)
 export const ION_COMPONENTS = COMPONENT_GROUPS.filter(
   (g) => g.id === 'cation' || g.id === 'anion',
 ).flatMap((g) => g.items)
+
+/**
+ * 成分id → モル質量 (g/mol)。化学式を持つ成分だけが載る。
+ * 化学式のない成分(Bq/kg のラドン)はモル濃度に換算できないため含まない。
+ */
+export const MOLAR_MASS: Record<string, number> = Object.fromEntries(
+  ALL_COMPONENTS.flatMap((c) => (c.formula ? [[c.id, molarMass(c.formula)]] : [])),
+)
 
 /* ============================================================
    酸解離定数(25℃・希薄水溶液での標準値)
@@ -156,6 +249,15 @@ export const METRICS: Metric[] = [
   { id: 'rn_ci', label: 'ラドン', unit: '×10⁻¹⁰ Ci/kg', kind: 'conc' },
   { id: 'rn_mache', label: 'ラドン', unit: 'マッヘ単位', kind: 'conc' },
 ]
+
+/**
+ * 2軸比較(散布図)で使う指標。成分の重量濃度はモル濃度に置き換える。
+ * 重量のままだと原子量の差で見かけの大小が変わり、成分どうしを比べにくいため。
+ * モル質量を持たない指標(ラドン・溶存物質総量・泉温・pH)は元の単位のまま扱う。
+ */
+export const MOLAR_METRICS: Metric[] = METRICS.map((m) =>
+  MOLAR_MASS[m.id] == null ? m : { ...m, unit: 'mmol/kg' },
+)
 
 export const PREFS: [string, number, number][] = [
   ['北海道', 43.06, 141.35],
