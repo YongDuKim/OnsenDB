@@ -258,6 +258,50 @@ describe('2軸比較の単位', () => {
   })
 })
 
+describe('散布図の拡大', () => {
+  /**
+   * ドラッグでの範囲選択そのものは、グラフの描画領域の大きさが必要になるため
+   * jsdom では再現できない(実ブラウザで確認する)。ここでは操作の入口と、
+   * 拡大していない状態での見え方を確かめる。範囲の計算は lib/zoom のテストで担保する。
+   */
+  it('ドラッグで拡大できることを案内する', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    expect(screen.getByText(/図の上をドラッグすると、囲んだ範囲だけを拡大/)).toBeInTheDocument()
+  })
+
+  it('拡大していないときは「全画面に戻す」を出さない', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    expect(screen.queryByRole('button', { name: '全画面に戻す' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/拡大中/)).not.toBeInTheDocument()
+  })
+
+  it('「指で範囲を選ぶ」で選択モードを入り切りできる', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '散布図' }))
+    const start = screen.getByRole('button', { name: '指で範囲を選ぶ' })
+    expect(start).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(start)
+    const stop = screen.getByRole('button', { name: '範囲の選択をやめる' })
+    expect(stop).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText(/拡大したい範囲を指でなぞって囲んでください/)).toBeInTheDocument()
+
+    await user.click(stop)
+    expect(screen.getByRole('button', { name: '指で範囲を選ぶ' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+  })
+})
+
 describe('一覧', () => {
   it('海水(比較基準)が常に表示される', () => {
     render(<App />)
