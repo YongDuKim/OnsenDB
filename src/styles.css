@@ -170,6 +170,14 @@ body {
   font-size: 14px;
   line-height: 1.9;
 }
+/*
+  散布図は拡大範囲を選ぶためにドラッグする。グラフ本体(recharts が tabIndex を付ける
+  svg)はマウスで押すたびに既定のフォーカス枠が出てしまうため、ポインタ操作のときだけ
+  枠を消す。キーボード操作の :focus-visible は残すこと。
+*/
+.recharts-surface:focus:not(:focus-visible) {
+  outline: none;
+}
 .o-minibar-track {
   background: #edf1f0;
   border-radius: 4px;
